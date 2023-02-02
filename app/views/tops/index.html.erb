@@ -1,0 +1,64 @@
+<h1 class="display-6">お天気情報</h1>
+<div class="container">
+    <div>
+        <%= form_with url: tops_path, local: true, method: 'post' do |form| %>
+            <div class="row m-2 g-3">
+                <div class="col-sm-3">
+                    <%= form.collection_select :pref, @pref_list, :pref_id, :pref_name, {"prompt": "都道府県を選択"}, {id: 'pref', class: 'form-select'} %>
+                </div>
+                <div class="col-sm-3">
+                    <div id="city_list_insert_point"></div>
+
+                    <div id="city_dummy">
+                        <%= form.select :city, ['---'], {}, {id: 'city_dummy', class: 'form-select'} %>
+                    </div>
+                </div>
+                <div class="col">
+                    <%= form.submit "取得", class: "btn btn-primary" %>
+                </div>
+            </div>
+
+
+            <% @pref_list.each do |pref| %>
+                <template id="city_<%= pref.pref_id %>">
+                    <div id="selected_city">
+                        <%= form.collection_select :city, pref.area_codes, :city_id, :city_name, {"prompt": "市町村を選択"}, {id: 'city', class: 'form-select'} %>
+                    </div>
+                </template>
+            <% end %>
+        <% end %>
+    </div>
+
+
+    <div class="mt-4">
+        <table class="table">
+            <% if @res %>
+                <p class="fs-4"><%= @res['title'] %></p>
+                <thead>
+                    <tr>
+                        <th>日時</th>
+                        <th>天気</th>
+                        <th>最低気温（℃）</th>
+                        <th>最高気温（℃）</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% for i in 0..2 do %>
+                        <% require 'date' %>
+                        <tr>
+                            <td><%= Date.parse(@res['forecasts'][i]['date']).strftime("%Y年%m月%d日") %></td>
+                            <td><%= @res['forecasts'][i]['telop'] %></td>
+                            <td><%= @res['forecasts'][i]['temperature']['min']['celsius'] %></td>
+                            <td><%= @res['forecasts'][i]['temperature']['max']['celsius'] %></td>
+                        </tr>
+                    <% end %>
+                </tbody>
+            <% end %>
+        </table>
+    </div>
+    
+    <p class="small">
+        天気情報は<a href="https://weather.tsukumijima.net/">天気予報API様</a>よりデータを取得させていただいております。
+    <p>
+
+</div>
